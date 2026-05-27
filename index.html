@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HabitOS</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen">
+  <div class="auth-box">
+    <div class="auth-logo">HabitOS</div>
+    <div class="auth-sub">YOUR DAILY HABIT TRACKER</div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="showAuthTab('login')">Login</button>
+      <button class="auth-tab" onclick="showAuthTab('register')">Register</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="login-form">
+      <div class="form-group">
+        <div class="form-label">EMAIL</div>
+        <input class="input" id="login-email" type="email" placeholder="you@email.com"/>
+      </div>
+      <div class="form-group">
+        <div class="form-label">PASSWORD</div>
+        <input class="input" id="login-password" type="password" placeholder="••••••••"/>
+      </div>
+      <div id="login-error" class="auth-error"></div>
+      <button class="btn btn-primary full-width" onclick="login()">Login →</button>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="register-form" style="display:none">
+      <div class="form-group">
+        <div class="form-label">USERNAME</div>
+        <input class="input" id="reg-username" type="text" placeholder="yourname"/>
+      </div>
+      <div class="form-group">
+        <div class="form-label">EMAIL</div>
+        <input class="input" id="reg-email" type="email" placeholder="you@email.com"/>
+      </div>
+      <div class="form-group">
+        <div class="form-label">PASSWORD</div>
+        <input class="input" id="reg-password" type="password" placeholder="min 6 characters"/>
+      </div>
+      <div id="reg-error" class="auth-error"></div>
+      <button class="btn btn-primary full-width" onclick="register()">Create Account →</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" style="display:none">
+
+  <div id="topnav">
+    <div class="logo">
+      <span class="logo-title">HabitOS</span>
+      <span class="logo-sub">TRACKER</span>
+    </div>
+    <div class="nav-center">
+      <button class="nav-link active" onclick="switchView('tracker')">Tracker</button>
+      <button class="nav-link" onclick="switchView('admin')">⚙ Admin</button>
+    </div>
+    <div class="nav-right">
+      <span id="nav-username" class="nav-username"></span>
+      <button class="btn btn-ghost btn-sm" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <!-- TRACKER PAGE -->
+  <div class="page active" id="page-tracker">
+    <div class="month-header">
+      <div class="month-nav">
+        <button class="arrow-btn" onclick="prevMonth()">‹</button>
+        <div>
+          <div id="month-title" class="month-name"></div>
+          <div class="month-sub">— HABIT TRACKER —</div>
+        </div>
+        <button class="arrow-btn" onclick="nextMonth()">›</button>
+      </div>
+      <div id="year-title" class="year-label"></div>
+    </div>
+
+    <div id="week-pills" class="week-pills"></div>
+
+    <div class="card">
+      <div class="grid-header">
+        <div class="grid-header-label">My Habits</div>
+        <div id="day-headers" class="day-headers"></div>
+      </div>
+      <div class="day-numbers-row">
+        <div class="spacer"></div>
+        <div id="day-numbers" class="day-headers"></div>
+      </div>
+      <div id="habit-list"></div>
+    </div>
+
+    <div class="stat-cards">
+      <div class="stat-card">
+        <div class="stat-val accent" id="stat-pct">0%</div>
+        <div class="stat-lbl">Progress</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val green" id="stat-done">0</div>
+        <div class="stat-lbl">Done</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val red" id="stat-not">0</div>
+        <div class="stat-lbl">Not Done</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="prog-header">
+        <span class="prog-label">Weekly Progress</span>
+        <span id="prog-lbl" class="prog-pct">0%</span>
+      </div>
+      <div class="prog-track">
+        <div id="prog-bar" class="prog-fill"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN PAGE -->
+  <div class="admin-page" id="page-admin">
+    <div class="admin-header">
+      <div class="admin-title">Admin Panel</div>
+      <div class="admin-sub">MANAGE YOUR HABIT TRACKER</div>
+    </div>
+
+    <div class="admin-tabs">
+      <button class="tab-btn active" onclick="switchAdminTab('overview',this)">📊 Overview</button>
+      <button class="tab-btn" onclick="switchAdminTab('habits',this)">📝 Habits</button>
+      <button class="tab-btn" onclick="switchAdminTab('analytics',this)">📈 Analytics</button>
+      <button class="tab-btn" onclick="switchAdminTab('settings',this)">⚙️ Settings</button>
+    </div>
+
+    <div id="tab-overview" class="admin-tab">
+      <div class="overview-grid" id="overview-stats"></div>
+      <div class="card">
+        <div class="section-title">This Week's Highlights</div>
+        <div class="highlights" id="highlights"></div>
+      </div>
+      <div class="card">
+        <div class="section-title">Habits by Category</div>
+        <div id="cat-breakdown"></div>
+      </div>
+    </div>
+
+    <div id="tab-habits" class="admin-tab hidden">
+      <div class="card">
+        <div class="section-title">Add New Habit</div>
+        <div class="form-grid">
+          <div>
+            <div class="form-label">NAME</div>
+            <input class="input" id="new-name" placeholder="Habit name..." onkeydown="if(event.key==='Enter')addHabit()"/>
+          </div>
+          <div>
+            <div class="form-label">CATEGORY</div>
+            <select class="input" id="new-cat"></select>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-label">EMOJI</div>
+          <div class="emoji-wrap">
+            <button class="btn btn-ghost emoji-trigger" id="new-emoji-btn" onclick="toggleEmojiPicker('new')">✨</button>
+            <div class="emoji-grid" id="emoji-picker-new"></div>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-label">COLOR</div>
+          <div class="color-swatches" id="new-color-swatches"></div>
+        </div>
+        <button class="btn btn-primary" onclick="addHabit()">+ Add Habit</button>
+      </div>
+      <div>
+        <div class="section-title" id="habit-count-lbl">All Habits</div>
+        <div id="admin-habit-list"></div>
+      </div>
+    </div>
+
+    <div id="tab-analytics" class="admin-tab hidden">
+      <div class="card mb16">
+        <div class="section-title">Per-Habit Weekly Breakdown</div>
+        <div id="analytics-habits"></div>
+      </div>
+      <div class="card">
+        <div class="section-title">Monthly Heatmap</div>
+        <div class="heatmap-grid" id="heatmap"></div>
+        <div class="heatmap-legend">
+          <span class="legend-label">Less</span>
+          <div id="heatmap-legend-swatches" class="legend-swatches"></div>
+          <span class="legend-label">More</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-settings" class="admin-tab hidden">
+      <div class="card">
+        <div class="section-title">Accent Color</div>
+        <div class="color-swatches" id="accent-swatches"></div>
+      </div>
+      <div class="card">
+        <div class="section-title">Background Color</div>
+        <div class="color-swatches" id="bg-swatches"></div>
+      </div>
+      <div class="card">
+        <div class="section-title">Data Management</div>
+        <p class="setting-desc">Reset all checked boxes. Habits will remain.</p>
+        <div id="reset-area">
+          <button class="btn btn-danger" onclick="showConfirmReset()">🗑 Reset All Progress</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-title">Restore Defaults</div>
+        <p class="setting-desc">Reset habit list back to the original 9 habits.</p>
+        <button class="btn btn-ghost" onclick="restoreDefaults()">↺ Restore Default Habits</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-bg" id="edit-modal">
+  <div class="modal">
+    <div class="modal-title">Edit Habit</div>
+    <div class="form-section">
+      <div class="form-label">NAME</div>
+      <input class="input" id="edit-name"/>
+    </div>
+    <div class="form-section">
+      <div class="form-label">CATEGORY</div>
+      <select class="input" id="edit-cat"></select>
+    </div>
+    <div class="form-section">
+      <div class="form-label">EMOJI</div>
+      <div class="emoji-wrap">
+        <button class="btn btn-ghost emoji-trigger" id="edit-emoji-btn" onclick="toggleEmojiPicker('edit')">✨</button>
+        <div class="emoji-grid" id="emoji-picker-edit"></div>
+      </div>
+    </div>
+    <div class="form-section">
+      <div class="form-label">COLOR</div>
+      <div class="color-swatches" id="edit-color-swatches"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary flex1" onclick="saveEdit()">Save Changes</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
